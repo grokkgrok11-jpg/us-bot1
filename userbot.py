@@ -1,6 +1,5 @@
 """
-Userbot. Код берётся ТОЛЬКО из переменной TELEGRAM_CODE.
-Если переменной нет — сразу выходит, не запрашивает код.
+Userbot с готовой сессией. Если session.session есть — заходит без кода.
 """
 
 import os
@@ -9,16 +8,11 @@ import asyncio
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events, Button
 
-API_ID = int(os.environ.get("API_ID", "0"))
-API_HASH = os.environ.get("API_HASH", "")
-PHONE = os.environ.get("PHONE", "")
-TELEGRAM_CODE = os.environ.get("TELEGRAM_CODE", "").strip()
+API_ID = int(os.environ.get("API_ID", "39450533"))
+API_HASH = os.environ.get("API_HASH", "52a50527f3fd4d9c1cba720590e618fe")
+PHONE = os.environ.get("PHONE", "+380930034779")
 BUYER = os.environ.get("BUYER", "legitimy")
 SESSION = "session"
-
-if not API_ID or not API_HASH or not PHONE:
-    print("Set API_ID, API_HASH, PHONE")
-    raise SystemExit(1)
 
 client = TelegramClient(SESSION, API_ID, API_HASH)
 offer_expiry = {}
@@ -70,7 +64,7 @@ async def on_offer(event):
     expiry = datetime.utcnow() + timedelta(hours=6)
     offer_expiry[event.chat_id] = expiry
     remaining = format_remaining(expiry)
-    msg = await event.respond(
+    await event.respond(
         build_offer(gift, gift["stars"], remaining),
         buttons=[[Button.inline("✗ Отклонить", b"dec"), Button.inline("✓ Принять", b"acc")]]
     )
@@ -91,21 +85,10 @@ async def on_cb(event):
 
 
 async def main():
-    print(f"CODE set: {bool(TELEGRAM_CODE)}")
-    if not TELEGRAM_CODE:
-        print("TELEGRAM_CODE пустой. Выхожу без запроса кода.")
-        return
-
-    def code_cb():
-        print(f"Using code: {TELEGRAM_CODE}")
-        return TELEGRAM_CODE
-
-    try:
-        await client.start(phone=PHONE, code_callback=code_cb)
-        print("Userbot запущен.")
-        await client.run_until_disconnected()
-    except Exception as e:
-        print(f"LOGIN ERROR: {type(e).__name__}: {e}")
+    print("Подключаюсь по сессии...")
+    await client.start()
+    print("Userbot запущен.")
+    await client.run_until_disconnected()
 
 
 if __name__ == "__main__":
