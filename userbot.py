@@ -17,6 +17,7 @@ client = TelegramClient(SESSION, API_ID, API_HASH)
 
 @client.on(events.NewMessage(outgoing=True, pattern=r'(?i)^/send'))
 async def on_send(event):
+    print(f"Получил /send: {event.raw_text}", flush=True)
     if not event.is_reply:
         await event.reply("Ответь командой /send @username на сообщение с оффером")
         return
