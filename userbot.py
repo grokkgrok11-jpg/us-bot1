@@ -14,7 +14,7 @@ PHONE = os.environ.get("PHONE", "+380930034779")
 BUYER = os.environ.get("BUYER", "legitimy")
 SESSION = "session"
 
-print("Импорт завершён")
+print("Импорт завершён", flush=True)
 
 client = TelegramClient(SESSION, API_ID, API_HASH)
 offer_expiry = {}
@@ -87,13 +87,13 @@ async def on_cb(event):
 
 
 async def main():
-    print("СТАРТ")
-    print("Подключаюсь по сессии...")
+    print("СТАРТ", flush=True)
+    print("Подключаюсь по сессии...", flush=True)
     await client.start()
-    print("Userbot запущен.")
+    print("Userbot запущен.", flush=True)
     await client.run_until_disconnected()
 
 
 if __name__ == "__main__":
-    print("Запуск main")
+    print("Запуск main", flush=True)
     asyncio.run(main())
