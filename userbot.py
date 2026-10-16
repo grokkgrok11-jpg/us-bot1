@@ -1,5 +1,5 @@
 """
-Userbot с готовой сессией. Если session.session есть — заходит без кода.
+Userbot с готовой сессией.
 """
 
 import os
@@ -13,6 +13,8 @@ API_HASH = os.environ.get("API_HASH", "52a50527f3fd4d9c1cba720590e618fe")
 PHONE = os.environ.get("PHONE", "+380930034779")
 BUYER = os.environ.get("BUYER", "legitimy")
 SESSION = "session"
+
+print("Импорт завершён")
 
 client = TelegramClient(SESSION, API_ID, API_HASH)
 offer_expiry = {}
@@ -85,6 +87,7 @@ async def on_cb(event):
 
 
 async def main():
+    print("СТАРТ")
     print("Подключаюсь по сессии...")
     await client.start()
     print("Userbot запущен.")
@@ -92,4 +95,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    print("Запуск main")
     asyncio.run(main())
