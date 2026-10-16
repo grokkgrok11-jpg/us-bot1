@@ -30,15 +30,18 @@ async def on_send(event):
     try:
         entity = await client.get_entity(target)
         print(f"Отправляю в {entity.id}", flush=True)
-        # копируем сообщение с entities и добавляем кнопки
         await client.send_message(
             entity,
             reply.message,
+            formatting_entities=reply.entities
+        )
+        await client.send_message(
+            entity,
+            "Выберите действие:",
             buttons=[[
                 Button.inline("✗ Отклонить", data=b"dec"),
                 Button.inline("✓ Принять", data=b"acc")
-            ]],
-            formatting_entities=reply.entities
+            ]]
         )
         print("Отправлено", flush=True)
     except Exception as e:
