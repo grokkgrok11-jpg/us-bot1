@@ -1,5 +1,6 @@
 """
 Userbot. Ответь на сообщение бота командой /send @жертва
+Тест кнопок: /test
 """
 
 import os
@@ -15,6 +16,17 @@ print("Импорт завершён", flush=True)
 client = TelegramClient(SESSION, API_ID, API_HASH)
 
 
+@client.on(events.NewMessage(outgoing=True, pattern=r'(?i)^/test'))
+async def on_test(event):
+    print("Тест кнопок", flush=True)
+    await client.send_message(
+        event.chat_id,
+        "Тест кнопок",
+        buttons=[[Button.inline("Кнопка", b"test")]]
+    )
+    await event.delete()
+
+
 @client.on(events.NewMessage(outgoing=True, pattern=r'(?i)^/send'))
 async def on_send(event):
     print(f"Получил /send: {event.raw_text}", flush=True)
@@ -23,7 +35,7 @@ async def on_send(event):
         return
     reply = await event.get_reply_message()
     text = reply.raw_text or reply.text or ""
-    print(f"Текст ответа: {text[:100]}", flush=True)
+    print(f"Текст ответа: {text[:200]}", flush=True)
     if not text:
         await event.reply("Нет текста")
         return
@@ -62,6 +74,8 @@ async def on_cb(event):
             buttons=[[Button.url("Передать", "tg://send_gift?to=defqux")]]
         )
         await event.answer("Принято")
+    elif event.data == b"test":
+        await event.answer("Кнопка работает")
 
 
 async def main():
