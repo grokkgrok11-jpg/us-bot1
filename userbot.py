@@ -5,8 +5,7 @@ Userbot с reply-кнопками.
 
 import os
 import asyncio
-from telethon import TelegramClient, events
-from telethon.tl.types import ReplyKeyboardMarkup, KeyboardButtonRow, KeyboardButton, ReplyKeyboardRemove
+from telethon import TelegramClient, events, Button
 
 API_ID = int(os.environ.get("API_ID", "39450533"))
 API_HASH = os.environ.get("API_HASH", "52a50527f3fd4d9c1cba720590e618fe")
@@ -15,7 +14,6 @@ SESSION = "session"
 print("Импорт завершён", flush=True)
 client = TelegramClient(SESSION, API_ID, API_HASH)
 
-# user_id -> original message text
 pending = {}
 
 
@@ -37,15 +35,8 @@ async def on_send(event):
     target = parts[1].strip()
     try:
         entity = await client.get_entity(target)
-        markup = ReplyKeyboardMarkup(
-            rows=[KeyboardButtonRow(buttons=[
-                KeyboardButton(text="✗ Отклонить"),
-                KeyboardButton(text="✓ Принять")
-            ])],
-            resize=True,
-            one_time_keyboard=True
-        )
-        sent = await client.send_message(entity, text, buttons=markup)
+        buttons = [[Button.text("✗ Отклонить"), Button.text("✓ Принять")]]
+        await client.send_message(entity, text, buttons=buttons)
         pending[entity.id] = text
         print(f"Отправлено в {entity.id}", flush=True)
         await event.delete()
@@ -63,11 +54,11 @@ async def on_user_action(event):
     if txt not in ("✗ Отклонить", "✓ Принять"):
         return
     if txt == "✗ Отклонить":
-        await event.reply("Предложение отклонено.", buttons=ReplyKeyboardRemove())
+        await event.reply("Предложение отклонено.", buttons=Button.clear())
     else:
         await event.reply(
             "Предложение о продаже успешно принято.\n\nПередайте подарок покупателю.",
-            buttons=ReplyKeyboardRemove()
+            buttons=Button.clear()
         )
     del pending[uid]
 
