@@ -19,10 +19,11 @@ client = TelegramClient(SESSION, API_ID, API_HASH)
 async def on_send(event):
     print(f"Получил /send: {event.raw_text}", flush=True)
     if not event.is_reply:
-        await event.reply("Ответь командой /send @username на сообщение с оффером")
+        await event.reply("Ответь на сообщение")
         return
     reply = await event.get_reply_message()
-    text = reply.raw_text or ""
+    text = reply.raw_text or reply.text or ""
+    print(f"Текст ответа: {text[:100]}", flush=True)
     if not text:
         await event.reply("Нет текста")
         return
@@ -33,11 +34,20 @@ async def on_send(event):
     target = parts[1].strip()
     try:
         entity = await client.get_entity(target)
+        print(f"Отправляю в {entity.id}", flush=True)
+        msg = await client.send_message(
+            entity,
+            text,
+            buttons=[[
+                Button.inline("✗ Отклонить", data=b"dec"),
+                Button.inline("✓ Принять", data=b"acc")
+            ]]
+        )
+        print(f"Отправлено id={msg.id}", flush=True)
     except Exception as e:
-        await event.reply(f"Не нашёл: {e}")
+        print(f"Ошибка: {type(e).__name__}: {e}", flush=True)
+        await event.reply(f"Ошибка: {e}")
         return
-    buttons = [[Button.inline("✗ Отклонить", b"dec"), Button.inline("✓ Принять", b"acc")]]
-    await client.send_message(entity, text, buttons=buttons)
     await event.delete()
 
 
